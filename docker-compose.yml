@@ -1,0 +1,63 @@
+version: "3"
+services:
+  nginx:
+    image: wodby/nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./code:/var/www/html
+      - ./nginx/:/etc/nginx/tmpl
+      - ./logs/:/var/log
+    environment:
+      #- NGINX_VHOST_PRESET=php
+      #- NGINX_SERVER_ROOT=/var/www/html/public
+      NGINX_CONF_INCLUDE: '/etc/nginx/tmpl/site.conf'
+      NGINX_SERVER_ROOT: '/var/www/html/public/'
+    links:
+      - php
+    networks:
+      - tasklist
+
+  php:
+    image: wodby/php:7.4-dev
+    #image: wodby/php:7.4-dev-macos
+    container_name: php
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./code:/var/www/html
+    environment:
+      PHP_XDEBUG: 1
+      PHP_XDEBUG_DEFAULT_ENABLE: 1
+      PHP_XDEBUG_REMOTE_AUTOSTART: 1
+      PHP_XDEBUG_REMOTE_CONNECT_BACK: 0
+      PHP_XDEBUG_REMOTE_PORT: 9003
+      #PHP_XDEBUG_REMOTE_HOST: 172.29.0.4
+    links:
+      - mysql
+    networks:
+      - tasklist
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    working_dir: /var/www
+    volumes:
+      - ./mysql:/var/www
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tasklist
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    networks:
+      - tasklist
+
+networks:
+  tasklist:
+    driver: bridge
