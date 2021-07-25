@@ -19,4 +19,5 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->get('/task/{userId:[0-9]+}', 'TaskController@show');
+$router->get('/tasks/user/{userId:[0-9]+}', 'TaskController@show');
+$router->post('/task/user/{userId:[0-9]+}', 'TaskController@store');

@@ -1,3 +1,4 @@
 *.log
 .idea
 .phpunit.result.cache
+mysql/

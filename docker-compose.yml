@@ -21,8 +21,8 @@ services:
       - tasklist
 
   php:
-    image: wodby/php:7.4-dev
-    #image: wodby/php:7.4-dev-macos
+    #image: wodby/php:7.4-dev
+    image: wodby/php:7.4-dev-macos
     container_name: php
     ports:
       - "9000:9000"
@@ -34,6 +34,11 @@ services:
       PHP_XDEBUG_REMOTE_AUTOSTART: 1
       PHP_XDEBUG_REMOTE_CONNECT_BACK: 0
       PHP_XDEBUG_REMOTE_PORT: 9003
+      PHP_IDE_CONFIG: "serverName=default"
+      PHP_XDEBUG_REMOTE_HOST: "host.docker.internal"
+      PHP_XDEBUG_MODE: "debug"
+      PHP_XDEBUG_START_WITH_REQUEST: "yes"
+      PHP_XDEBUG_IDEKEY: "PHPSTORM"
       #PHP_XDEBUG_REMOTE_HOST: 172.29.0.4
     links:
       - mysql
@@ -49,7 +54,7 @@ services:
     restart: always
     working_dir: /var/www
     volumes:
-      - ./mysql:/var/www
+      - ./mysql:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: tasklist

@@ -6,6 +6,7 @@ use App\Factories\UserFactory;
 use App\Repositories\TaskRepository;
 use App\Repositories\UserRepository;
 use App\Strategies\TaskStrategy;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class TaskService
@@ -25,5 +26,10 @@ class TaskService
     {
         $tasks = $this->factory->getUserFactory($this->tasks, $this->users->getUserRole($userId)->role_name);
         return $tasks->getTasks($userId);
+    }
+
+    public function addTask(Request $request, int $userId)
+    {
+        return $this->tasks->addTask($request, $userId);
     }
 }

@@ -20,4 +20,9 @@ class TaskController extends BaseController
     {
         return new JsonResponse($this->service->getTasks($userId), 200);
     }
+
+    public function store(Request $request, int $userId): JsonResponse
+    {
+        return new JsonResponse($this->service->addTask($request, $userId), 200);
+    }
 }
