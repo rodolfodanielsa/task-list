@@ -25,4 +25,9 @@ class UserRepository
     {
         return $this->user->find($userId)->role;
     }
+
+    public function getAllUsers(): Collection
+    {
+        return $this->user->all();
+    }
 }

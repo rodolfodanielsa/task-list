@@ -21,8 +21,8 @@ services:
       - tasklist
 
   php:
-    #image: wodby/php:7.4-dev
-    image: wodby/php:7.4-dev-macos
+    image: wodby/php:7.4-dev
+    #image: wodby/php:7.4-dev-macos
     container_name: php
     ports:
       - "9000:9000"
@@ -39,7 +39,7 @@ services:
       PHP_XDEBUG_MODE: "debug"
       PHP_XDEBUG_START_WITH_REQUEST: "yes"
       PHP_XDEBUG_IDEKEY: "PHPSTORM"
-      #PHP_XDEBUG_REMOTE_HOST: 172.29.0.4
+      #PHP_XDEBUG_REMOTE_HOST: 172.17.0.1
     links:
       - mysql
     networks:
@@ -50,11 +50,13 @@ services:
     container_name: mysql
     ports:
       - "3306:3306"
-    command: --default-authentication-plugin=mysql_native_password
+    command: --default-authentication-plugin=mysql_native_password --explicit_defaults_for_timestamp
     restart: always
     working_dir: /var/www
     volumes:
-      - ./mysql:/var/lib/mysql
+    #  - ./mysql:/var/www
+      - ./mysql:/var/bin/mysql
+
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: tasklist

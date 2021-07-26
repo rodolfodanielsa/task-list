@@ -11,7 +11,7 @@ class TaskRepository
     /**
      * @var Task
      */
-    protected $task;
+    protected Task $task;
 
     public function __construct(Task $task)
     {
@@ -28,10 +28,10 @@ class TaskRepository
         return $this->task->where('user_id', $userId)->get();
     }
 
-    public function addTask(Request $request, int $userId)
+    public function addTask(Request $request, int $userId): Task
     {
         $this->task->fill([
-            'summary' => 'teste',
+            'summary' => $request->input('summary'),
             'user_id' => $userId,
         ]);
 
