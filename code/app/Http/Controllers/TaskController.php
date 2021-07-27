@@ -30,7 +30,7 @@ class TaskController extends BaseController
 
     public function store(Request $request, int $userId): JsonResponse
     {
-        $validateRequest = Validator::make($request->all(), Task::$createRules);
+        $validateRequest = $this->validateRequest($request);
 
         if ($validateRequest->fails()) {
             return new JsonResponse($validateRequest->getMessageBag(), 400);
@@ -43,5 +43,10 @@ class TaskController extends BaseController
             return new JsonResponse(["error" => $e->getMessage()], $e->getCode());
         }
 
+    }
+
+    protected function validateRequest(Request $request): \Illuminate\Contracts\Validation\Validator
+    {
+        return Validator::make($request->all(), Task::$createRules);
     }
 }

@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Services\TaskService;
 use Exception;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+
 
 class TaskControllerTest extends TestCase
 {
@@ -52,9 +54,51 @@ class TaskControllerTest extends TestCase
 
     }
 
-    public function testStore(): void
-    {
+    /**
+     * @dataProvider provideStore
+     */
+    public function testStore(
+        array $requestBody,
+        int $userId,
+        bool $fails,
+        int $addTaskCount,
+        array $expected,
+        int $statusCode,
+        ?array $exception = null
+    ): void {
+        $controller = $this->getMockBuilder(TaskController::class)
+            ->setConstructorArgs([$this->service])
+            ->onlyMethods(['validateRequest'])
+            ->getMock();
+        $validator = $this->createMock(Validator::class);
+        $request = new Request($requestBody);
 
+        $addTask = $this->service->expects($this->exactly($addTaskCount))
+            ->method('addTask')
+            ->with($request->input('summary'), $userId);
+
+        if ($exception) {
+            $addTask->willThrowException(new $exception['type']($exception['message'], $exception['code']));
+        } else {
+            $addTask->willReturn(new Task());
+        }
+
+        $validator->expects($this->once())
+            ->method('fails')
+            ->willReturn($fails);
+
+        $validator->expects($this->exactly((int) $fails))
+            ->method('getMessageBag')
+            ->willReturn($expected);
+
+        $controller->expects($this->once())
+            ->method('validateRequest')
+            ->willReturn($validator);
+
+        $result = $controller->store($request, $userId);
+
+        $this->assertEquals($statusCode, $result->getStatusCode());
+        $this->assertEquals($expected, (array)$result->getData());
     }
 
     public function provideShow(): array
@@ -86,6 +130,41 @@ class TaskControllerTest extends TestCase
                     'code' => 404,
                 ]
             ]
+        ];
+    }
+
+    public function provideStore(): array
+    {
+        return [
+            'Task added successfully' => [
+                'requestBody' => ['summary' => '111'],
+                'userId' => 1,
+                'fails' => false,
+                'addTaskCount' => 1,
+                'expected' => [],
+                'statusCode' => 200,
+            ],
+            'Validator fails' => [
+                'requestBody' => ['summary' => ''],
+                'userId' => 1,
+                'fails' => true,
+                'addTaskCount' => 0,
+                'expected' => ["summary" => "The summary field is required."],
+                'statusCode' => 400,
+            ],
+            'Task not added' => [
+                'requestBody' => ['summary' => 'asdasd'],
+                'userId' => 1,
+                'fails' => false,
+                'addTaskCount' => 1,
+                'expected' => ["error" => "Database Error"],
+                'statusCode' => 500,
+                'exception' => [
+                    'type' => \Exception::class,
+                    'message' => 'Database Error',
+                    'code' => 500,
+                ],
+            ],
         ];
     }
 }

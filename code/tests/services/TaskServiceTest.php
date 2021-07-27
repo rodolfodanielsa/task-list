@@ -141,7 +141,8 @@ class TaskServiceTest extends TestCase
 
         $result = $service->addTask($summary, $userId);
         if ($exception) {
-            $this->assertEquals($exception['type'], $result->getStatusCode());
+            $this->assertEquals($exception['code'], $result->getStatusCode());
+            $this->assertInstanceOf($exception['type'], $result);
         }else{
             $this->assertEquals($task, $result);
         }

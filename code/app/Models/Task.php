@@ -11,11 +11,12 @@ class Task extends Model
     protected $fillable = [
         'user_id',
         'summary',
-        'created_at',
+        'date',
     ];
 
     protected $hidden = [
-        'updated_at'
+        'created_at',
+        'updated_at',
     ];
 
     public static $createRules = [

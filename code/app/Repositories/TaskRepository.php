@@ -19,14 +19,19 @@ class TaskRepository
 
     public function getAllTasks(): array
     {
-        return DB::select("SELECT * FROM tasks");
+        return DB::select("SELECT t.id, t.date, u.id as user_id, u.name, r.role_name, t.summary
+        FROM tasks t
+        INNER JOIN users u ON t.user_id = u.id
+        INNER JOIN roles r ON r.id = u.role_id
+        ORDER BY t.id ASC");
     }
 
     public function getTasksByUser(int $userId): array
     {
-        return DB::select("SELECT t.id, t.summary, t.created_at
+        return DB::select("SELECT t.id, t.date, u.id as user_id, u.name, r.role_name, t.summary
         FROM tasks t
         INNER JOIN users u ON t.user_id = u.id
+        INNER JOIN roles r ON r.id = u.role_id
         WHERE u.id = ?", [$userId]);
     }
 
@@ -39,15 +44,17 @@ class TaskRepository
         $this->task->setAttribute('date', $date);
 
         try {
-            $this->insertTask($summary, $userId, $date);
+            $id = $this->insertTask($summary, $userId, $date);
+            $this->task->setAttribute('id', $id);
             return $this->task;
         } catch (\Exception $e) {
             throw new \Exception("Database Error", 500);
         }
     }
 
-    protected function insertTask(string $summary, int $userId, string $date): bool
+    protected function insertTask(string $summary, int $userId, string $date): int
     {
-        return DB::insert("INSERT INTO tasks (summary, user_id, date) VALUES (?, ?, ?)", [$summary, $userId, $date]);
+        $insert = DB::insert("INSERT INTO tasks (summary, user_id, date) VALUES (?, ?, ?)", [$summary, $userId, $date]);
+        return DB::getPdo()->lastInsertId();
     }
 }

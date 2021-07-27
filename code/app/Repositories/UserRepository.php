@@ -13,7 +13,10 @@ class UserRepository
 {
     public function getUserRole(int $userId): ?stdClass
     {
-        return DB::selectOne("SELECT role_name FROM roles r INNER JOIN users u ON u.role_id = r.id WHERE u.id = ?", [$userId]);
+        return DB::selectOne("SELECT role_name
+        FROM roles r
+        INNER JOIN users u ON u.role_id = r.id
+        WHERE u.id = ?", [$userId]);
     }
 
     public function getUser(int $userId): ?stdClass
@@ -23,6 +26,8 @@ class UserRepository
 
     public function getAllUsers(): array
     {
-        return DB::select("SELECT * FROM users_copy");
+        return DB::select("SELECT u.id, u.name, r.role_name
+        FROM users u
+        INNER JOIN roles r ON r.id = u.role_id");
     }
 }

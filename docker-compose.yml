@@ -37,6 +37,9 @@ services:
       PHP_XDEBUG_MODE: "debug"
       PHP_XDEBUG_START_WITH_REQUEST: "yes"
       PHP_XDEBUG_IDEKEY: "PHPSTORM"
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
     links:
       - mysql
     networks:
@@ -54,9 +57,9 @@ services:
       - ${MYSQL_VOLUME}
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: tasklist
-      MYSQL_USER: user
-      MYSQL_PASSWORD: pass
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     networks:
       - tasklist
 

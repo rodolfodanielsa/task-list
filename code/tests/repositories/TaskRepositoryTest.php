@@ -18,7 +18,7 @@ class TaskRepositoryTest extends TestCase
     /**
      * @dataProvider provideAddTask
      */
-    public function testAddTask(string $summary, int $userId, ?bool $willReturn, ?array $exception = null)
+    public function testAddTask(string $summary, int $userId, ?int $willReturn, ?array $exception = null)
     {
         $testDate = Carbon::create(2021, 5, 20, 23, 15);
         Carbon::setTestNow($testDate);
@@ -59,7 +59,7 @@ class TaskRepositoryTest extends TestCase
             'task is added successfully' => [
                 'summary' => 'Lorem Ipsum',
                 'userId' => 1,
-                'willReturn' => true,
+                'willReturn' => 14,
             ],
             'task is not added' => [
                 'summary' => 'Lorem Ipsum',
