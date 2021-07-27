@@ -3,7 +3,7 @@
 ## Setup
 
 ### Clone project
-`git clone git@github.com:rodolfodanielsa/task-list.git`
+`git clone https://github.com/rodolfodanielsa/task-list.git`
 
 ### Setup Docker Containers
 `cd task-list`
