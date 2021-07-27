@@ -6,28 +6,23 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
+use stdClass;
 
 class UserRepository
 {
-    protected User $user;
-
-    public function __construct(User $user)
+    public function getUserRole(int $userId): ?stdClass
     {
-        $this->user = $user;
+        return DB::selectOne("SELECT role_name FROM roles r INNER JOIN users u ON u.role_id = r.id WHERE u.id = ?", [$userId]);
     }
 
-    public function getUserRole(int $userId): Role
+    public function getUser(int $userId): ?stdClass
     {
-        return $this->getUser($userId);
+        return DB::selectOne("SELECT * FROM users WHERE id = ?", [$userId]);
     }
 
-    protected function getUser(int $userId): Role
+    public function getAllUsers(): array
     {
-        return $this->user->find($userId)->role;
-    }
-
-    public function getAllUsers(): Collection
-    {
-        return $this->user->all();
+        return DB::select("SELECT * FROM users_copy");
     }
 }

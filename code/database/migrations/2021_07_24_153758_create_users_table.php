@@ -89,7 +89,7 @@ class CreateUsersTable extends Migration
             DB::table('tasks')->insert([
                 'summary' => self::SUMMARIES[rand(0, count(self::SUMMARIES)-1)],
                 'user_id' => rand(1, 5),
-                'created_at' => Carbon::now(),
+                'date' => Carbon::now(),
             ]);
         }
     }

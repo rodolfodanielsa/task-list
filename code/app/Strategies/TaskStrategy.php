@@ -6,5 +6,5 @@ use Illuminate\Support\Collection;
 
 interface TaskStrategy
 {
-    public function getTasks(int $userId): Collection;
+    public function getTasks(int $userId): array;
 }

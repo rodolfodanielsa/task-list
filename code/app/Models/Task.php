@@ -10,7 +10,8 @@ class Task extends Model
 {
     protected $fillable = [
         'user_id',
-        'summary'
+        'summary',
+        'created_at',
     ];
 
     protected $hidden = [
@@ -20,9 +21,4 @@ class Task extends Model
     public static $createRules = [
         'summary' => 'required|max:2500',
     ];
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
 }

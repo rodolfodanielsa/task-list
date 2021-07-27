@@ -26,9 +26,4 @@ class User extends Model
     protected $hidden = [
         'created_at', 'updated_at'
     ];
-
-    public function role(): BelongsTo
-    {
-        return $this->belongsTo(Role::class);
-    }
 }

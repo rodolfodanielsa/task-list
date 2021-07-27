@@ -8,17 +8,14 @@ use Illuminate\Support\Collection;
 
 class TechnicianStrategy implements TaskStrategy
 {
-    /**
-     * @var TaskRepository
-     */
-    protected $task;
+    protected TaskRepository $task;
 
     public function __construct(TaskRepository $task)
     {
         $this->task = $task;
     }
 
-    public function getTasks(int $userId): Collection
+    public function getTasks(int $userId): array
     {
         return $this->task->getTasksByUser($userId);
     }

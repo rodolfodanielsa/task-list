@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Services\TaskService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -23,36 +24,68 @@ class TaskControllerTest extends TestCase
         $this->service = $this->createMock(TaskService::class);
         $this->controller = new TaskController($this->service);
     }
-    public function testShow(): void
-    {
-        $collection = new Collection([]);
-        $response = new JsonResponse($collection, 200);
 
-        $userId = 1;
-        $this->service->expects($this->once())
-            ->method('getTasks')
-            ->with($userId)
-            ->willReturn($collection);
+    /**
+     * @dataProvider provideShow
+     */
+    public function testShow(int $userId, array $expected, int $calls, ?array $exception = null): void
+    {
+        if ($exception) {
+            $statusCode = $exception['code'];
+            $this->service->expects($this->once())
+                ->method('getTasks')
+                ->with($userId)
+                ->willThrowException(new $exception['type']($exception['message'], $exception['code']));
+        } else {
+            $statusCode = 200;
+            $this->service->expects($this->once())
+                ->method('getTasks')
+                ->with($userId)
+                ->willReturn($expected);
+        }
+
         $result = $this->controller->show($userId);
+
         $this->assertInstanceOf(JsonResponse::class, $result);
-        $this->assertEquals([], $result->getData());
+        $this->assertEquals($statusCode, $result->getStatusCode());
+        $this->assertEquals($expected, $result->getData(true));
+
     }
 
     public function testStore(): void
     {
-        $task = new Task();
-        $response = new JsonResponse($task, 200);
-        $request = new Request();
 
-        $userId = 1;
-        $this->service->expects($this->once())
-            ->method('addTask')
-            ->with($request, $userId)
-            ->willReturn($task);
+    }
 
-        $result = $this->controller->store($request, $userId);
-
-        $this->assertInstanceOf(JsonResponse::class, $result);
-        $this->assertEquals([], $result->getData());
+    public function provideShow(): array
+    {
+        return [
+            'user does not have tasks' => [
+                'userId' => 1,
+                'expected' => [],
+                'calls' => 1,
+            ],
+            'user has tasks' => [
+                'userId' => 2,
+                'expected' => [
+                    'summary' => 'task',
+                    'user_id' => 2,
+                    'created_at' => '2021-07-26 12:34:56',
+                ],
+                'calls' => 1,
+            ],
+            'user does not exist' => [
+                'userId' => 3,
+                'expected' => [
+                    'error' => 'Invalid User',
+                ],
+                'calls' => 0,
+                'exception' => [
+                    'type' => Exception::class,
+                    'message' => 'Invalid User',
+                    'code' => 404,
+                ]
+            ]
+        ];
     }
 }

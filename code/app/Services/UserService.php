@@ -14,7 +14,7 @@ class UserService
         $this->repository = $repository;
     }
 
-    public function getUsers(): Collection
+    public function getUsers(): array
     {
         return $this->repository->getAllUsers();
     }

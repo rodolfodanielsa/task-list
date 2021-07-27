@@ -3,14 +3,13 @@
 namespace App\Repositories;
 
 use App\Models\Task;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class TaskRepository
 {
-    /**
-     * @var Task
-     */
     protected Task $task;
 
     public function __construct(Task $task)
@@ -18,24 +17,37 @@ class TaskRepository
         $this->task = $task;
     }
 
-    public function getAllTasks(): Collection
+    public function getAllTasks(): array
     {
-        return $this->task->get();
+        return DB::select("SELECT * FROM tasks");
     }
 
-    public function getTasksByUser(int $userId): Collection
+    public function getTasksByUser(int $userId): array
     {
-        return $this->task->where('user_id', $userId)->get();
+        return DB::select("SELECT t.id, t.summary, t.created_at
+        FROM tasks t
+        INNER JOIN users u ON t.user_id = u.id
+        WHERE u.id = ?", [$userId]);
     }
 
-    public function addTask(Request $request, int $userId): Task
+    public function addTask(string $summary, int $userId): Task
     {
-        $this->task->fill([
-            'summary' => $request->input('summary'),
-            'user_id' => $userId,
-        ]);
+        $date = Carbon::now()->format("Y-m-d H:i:s");
 
-        $this->task->save();
-        return $this->task;
+        $this->task->setAttribute('summary', $summary);
+        $this->task->setAttribute('user_id', $userId);
+        $this->task->setAttribute('date', $date);
+
+        try {
+            $this->insertTask($summary, $userId, $date);
+            return $this->task;
+        } catch (\Exception $e) {
+            throw new \Exception("Database Error", 500);
+        }
+    }
+
+    protected function insertTask(string $summary, int $userId, string $date): bool
+    {
+        return DB::insert("INSERT INTO tasks (summary, user_id, date) VALUES (?, ?, ?)", [$summary, $userId, $date]);
     }
 }
